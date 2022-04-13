@@ -4,17 +4,31 @@ from jax.lax import cond, fori_loop, while_loop
 
 from prax.integrator import RungeKutta
 
-def PeriodicOrbit(func, init_val, idx=0, section=0.0, dt=0.01, transient=10**7, maximum_power_two=20, n_step=2**12):
+def PeriodicOrbit(
+    func,
+    init_val,
+    idx = 0,
+    section = 0.0,
+    from_neg_to_pos = True,
+    dt = 0.01,
+    transient = 10**7,
+    maximum_power_two = 20,
+    n_step = 2**12
+    ):
+
     n_dim = len(init_val)
 
-    next_state = lambda state, dt: RungeKutta(func, state, 0.0, dt)
+    next_state = lambda state, dt: RungeKutta(func, state, dt)
     update = jit(lambda i, val: next_state(val, dt))
     state = fori_loop(0, transient, update, init_val)
 
     x_prev, x_now = state, next_state(state, dt)
     power_two = 0
     # True if prev and now is crossing section
-    check_cross = lambda x_prev, x_now: jnp.logical_and(x_prev[idx] < section, x_now[idx] > section)
+    if from_neg_to_pos:
+        check_cross = lambda x_prev, x_now: jnp.logical_and(x_prev[idx] < section, x_now[idx] > section)
+    else:
+        check_cross = lambda x_prev, x_now: jnp.logical_and(x_prev[idx] > section, x_now[idx] < section)
     # True if crossing and enough divided
     cond_fun = lambda val: jnp.logical_and(check_cross(*val[0]), val[1] > maximum_power_two)
     def true_fun(val):
@@ -26,7 +40,6 @@ def PeriodicOrbit(func, init_val, idx=0, section=0.0, dt=0.01, transient=10**7, 
         (x_prev, x_now), power_two = val
         x_prev, x_now = x_now, next_state(x_now, dt * 0.5 ** power_two)
         return [(x_prev, x_now), power_two]
-        return 0
     # poincate sectionの初期点を得る
     (x_prev, x_now), power_two = while_loop(
         cond_fun = jit(lambda val: jnp.logical_not(cond_fun(val))),
@@ -42,16 +55,16 @@ def PeriodicOrbit(func, init_val, idx=0, section=0.0, dt=0.01, transient=10**7, 
     x_prev, x_now = x_now, next_state(x_now, dt * 0.5 ** power_two)
     # orbitの周期を求める
     def true_fun(val):
-        (x_prev, x_now), power_two, orbit_period = val
+        (x_prev, x_now), power_two, period = val
         power_two += 1
         x_now = next_state(x_prev, dt * 0.5 ** power_two)
-        return [(x_prev, x_now), power_two, orbit_period]
+        return [(x_prev, x_now), power_two, period]
     def false_fun(val):
-        (x_prev, x_now), power_two, orbit_period = val
-        orbit_period += dt * 0.5 ** power_two
+        (x_prev, x_now), power_two, period = val
+        period += dt * 0.5 ** power_two
         x_prev, x_now = x_now, next_state(x_now, dt * 0.5 ** power_two)
-        return [(x_prev, x_now), power_two, orbit_period]
-    (x_prev, x_now), power_two, orbit_period = while_loop(
+        return [(x_prev, x_now), power_two, period]
+    (x_prev, x_now), power_two, period = while_loop(
         cond_fun = jit(lambda val: jnp.logical_not(cond_fun(val))),
         body_fun = jit(lambda val: cond(
             pred = check_cross(*val[0]),
@@ -62,7 +75,7 @@ def PeriodicOrbit(func, init_val, idx=0, section=0.0, dt=0.01, transient=10**7, 
         init_val=[(x_prev, x_now), 0, 0.0]
     )
 
-    ts, delta = jnp.linspace(0, orbit_period, num=n_step, retstep=True)
+    ts, delta = jnp.linspace(0, period, num=n_step, retstep=True)
     orbit = jnp.empty((n_step, n_dim))
     def body_fun(i, val):
         state, orbit = val
@@ -75,16 +88,16 @@ def PeriodicOrbit(func, init_val, idx=0, section=0.0, dt=0.01, transient=10**7, 
         init_val=[x_prev, orbit]
     )
 
-    return orbit_period, ts, orbit
+    return period, ts, orbit
 
-def PhaseSensitivity(func, orbit, orbit_period, eps=10**(-5)):
+def PhaseSensitivity(func, orbit, period, eps=10**(-5)):
     jacobian_func = jacfwd(func)
     adjoint_func = lambda z, x: -jacobian_func(x).T @ z
 
-    omega = 2.0 * jnp.pi / orbit_period
+    omega = 2.0 * jnp.pi / period
     orbit_reverse = jnp.flipud(orbit)
     n_step, n_dim = orbit.shape
-    dt = orbit_period / n_step
+    dt = period / n_step
 
     def update(i, val):
         z, zs = val
