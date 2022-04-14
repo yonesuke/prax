@@ -115,6 +115,8 @@ class Oscillator:
         self.periodic_orbit = orbit
 
     def calc_phase_response(self):
+        assert self.periodic_orbit is not None, "find periodic orbit first!! use self.find_periodic_orbit function"
+
         jacobian_fn = jacfwd(self.forward)
         adjoint_fn = lambda z, x: -jacobian_fn(x).T @ z
 
@@ -143,4 +145,5 @@ class Oscillator:
             return [zs_prev, zs_now]
         cond_fn = lambda val: jnp.abs(val[0] - val[1]).max() > self.eps
         zs_prev, zs_now = while_loop(cond_fn, body_fn, init_val=[zs_prev, zs_now])
-        return jnp.flipud(zs_now)
+
+        self.phase_response_curve = jnp.flipud(zs_now)
