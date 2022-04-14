@@ -7,7 +7,8 @@ setuptools.setup(
     name="prax",
     version="0.0.1",
     install_requires=[
-        "jax"
+        "jax",
+        "tree"
     ],
     author="yonesuke",
     author_email="13e.e.c.13@gmail.com",
