@@ -52,8 +52,9 @@ plt.plot(model.ts, model.phase_response_curve)
 <img src="figs/vanderpol_phase_response.svg" />
 
 ## Galleries
+See [examples](examples/) directory!!
 
-- Van der Pol equation
+- Van der Pol equation [[code](examples/vanderpol.py)]
     ```python
     class VanderPol(Oscillator):
         def __init__(self, mu, dt=0.01, eps=10**-5):
@@ -70,7 +71,7 @@ plt.plot(model.ts, model.phase_response_curve)
     ```
     <img src="figs/vanderpol.svg" />
 
-- Stuart Landau equation
+- Stuart Landau equation [[code](examples/stuartlandau.py)]
     ```python
     class StuartLandau(Oscillator):
         def __init__(self, dt=0.01, eps=10**-5):
@@ -86,7 +87,7 @@ plt.plot(model.ts, model.phase_response_curve)
     ```
     <img src="figs/stuartlandau.svg" />
 
-- FitzHugh-Nagumo equation
+- FitzHugh-Nagumo equation [[code](examples/fitzhughnagumo.py)]
     ```python
     class FitzHughNagumo(Oscillator):
         def __init__(self, params, dt=0.01, eps=10**-5):
@@ -103,7 +104,7 @@ plt.plot(model.ts, model.phase_response_curve)
     ```
     <img src="figs/fitzhughnagumo.svg" />
 
-- Brusselator equation
+- Brusselator equation [[code](examples/brusselator.py)]
     ```python
     class Brusselator(Oscillator):
         def __init__(self, params, dt=0.01, eps=10**-5):
@@ -120,7 +121,7 @@ plt.plot(model.ts, model.phase_response_curve)
     ```
     <img src="figs/brusselator.svg" />
 
-- Hodgkin Huxley equation
+- Hodgkin Huxley equation [[code](examples/hodgkinhuxley.py)]
     ```python
     class HodgkinHuxley(Oscillator):
         def __init__(self, input_current, C=1.0, G_Na=120.0, G_K=36.0, G_L=0.3, E_Na=50.0, E_K=-77.0, E_L=-54.4, dt=0.01, eps=10**-5):
