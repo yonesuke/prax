@@ -1,1 +1,1 @@
-from prax.phase_response import PeriodicOrbit, PhaseSensitivity, PhaseCouplingFn
+from prax.phase_response import Oscillator
