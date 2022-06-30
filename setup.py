@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.1",
     install_requires=[
         "jax",
-        "tree"
+        "dm-tree"
     ],
     author="yonesuke",
     author_email="13e.e.c.13@gmail.com",
