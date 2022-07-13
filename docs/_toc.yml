@@ -11,7 +11,7 @@ parts:
 
 - caption: Examples
   chapters:
-  - glob: examples/*ipynb
+  - glob: examples/*
 
 - caption: content with notebooks
   chapters:
