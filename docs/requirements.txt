@@ -2,3 +2,5 @@ jupyter-book
 matplotlib
 numpy
 sphinx
+"jax[cpu]"
+-e git+https://github.com/yonesuke/prax.git#egg=prax

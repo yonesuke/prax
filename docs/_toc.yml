@@ -11,7 +11,7 @@ parts:
 
 - caption: Examples
   chapters:
-  - file: vanderpol.ipynb
+  - glob: examples/*ipynb
 
 - caption: content with notebooks
   chapters:
