@@ -1,4 +1,6 @@
 # prax
+[![Jupyter Book Badge](https://jupyterbook.org/badge.svg)](https://prax.readthedocs.io/)
+
 JAX implementation of phase response curve
 
 ## Installation
